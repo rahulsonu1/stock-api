@@ -1,6 +1,7 @@
 const { error } = require('../config/errorMiddleware');
 const Post = require('../models/Post');
 const asyncHandler = require('express-async-handler');
+const Comment=require('../models/Comment')
 
 
 module.exports.create = asyncHandler(async (req, res) => {
@@ -33,5 +34,21 @@ module.exports.getPostbyId=asyncHandler(async (req,res)=>{
             post:post}
         )
     }
+})
 
+
+module.exports.deletePostbyId=asyncHandler(async (req,res)=>{
+
+    const post=await Post.findById(req.params.postId)
+    if(!post){
+        res.status(404)
+        throw new Error('Post not found')
+    }
+    if(post.user.toString()!==req.user.id){
+        res.status(403)
+        throw new Error('Not authorised')
+    }
+    await post.deleteOne();
+    await Comment.deleteMany({post:req.params.postId})
+    res.json({ success: true, message: 'Post and associated comments deleted successfully' });
 })

@@ -7,6 +7,7 @@ const postController=require('../controllers/postController')
 
 router.post('/',authMiddleware,postController.create)
 router.get('/:postId',postController.getPostbyId)
+router.delete('/:postId',authMiddleware,postController.deletePostbyId)
 
 
 module.exports=router
