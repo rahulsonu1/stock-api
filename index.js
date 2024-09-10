@@ -4,6 +4,8 @@ require('dotenv').config()
 require('./config/database')
 
 
+app.use('/api',require('./routes/index'))
+
 
 const port=process.env.PORT
 app.listen(port,function(err){
