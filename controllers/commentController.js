@@ -23,3 +23,26 @@ module.exports.create=asyncHandler(async (req,res)=>{
     res.json({ success: true, commentId: newComment.id, message: 'Comment added successfully' });
 
 })
+
+module.exports.deleteCommentById=asyncHandler(async(req,res)=>{
+    const comment = await Comment.findById(req.params.commentId);
+    if(!comment){
+        res.status(404)
+        throw new Error('comment not found')
+    }
+    if(comment.user.toString()!==req.user.id){
+        res.status(403).json({
+            message:"Not authorised"
+        })
+    }
+
+    await Comment.findByIdAndDelete(req.params.commentId);
+
+    await Post.findByIdAndUpdate(
+        req.params.postId,
+        { $pull: { comments: req.params.commentId } },
+        { new: true }
+    );
+    res.json({ success: true, message: 'Comment deleted successfully' });
+
+})
