@@ -4,6 +4,7 @@ const Post=require('../models/Post')
 
 
 module.exports.create=asyncHandler(async (req,res)=>{
+    const io = req.app.get('socketio');
     const {comment}=req.body
     const post=await Post.findById(req.params.postId)
     if(!post){
@@ -19,6 +20,15 @@ module.exports.create=asyncHandler(async (req,res)=>{
     await newComment.save();
     post.comments.push(newComment.id);
     await post.save();
+
+    io.to(req.params.postId).emit('newComment', {
+        commentId: newComment._id,
+        postId: req.params.postId,
+        comment: newComment.comment,
+        user: req.user.id,
+        createdAt: newComment.createdAt,
+      });
+  
 
     res.json({ success: true, commentId: newComment.id, message: 'Comment added successfully' });
 

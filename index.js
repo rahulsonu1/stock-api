@@ -1,9 +1,24 @@
 const express=require('express')
+const http=require('http')
+const socketIo=require('socket.io')
+const cors=require('cors')
 const app=express()
 require('dotenv').config()
 require('./config/database')
 const errorHandler=require('./config/errorMiddleware')
 
+app.use(cors())
+const server=http.createServer(app)
+const io = socketIo(server, { cors: { origin: '*' } });
+
+app.set('socketio', io);
+
+io.on('connection', (socket) => {
+  console.log('New client connected');
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
 
 app.use(express.json())
 app.use(express.urlencoded())

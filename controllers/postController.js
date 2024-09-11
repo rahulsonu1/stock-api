@@ -68,6 +68,8 @@ module.exports.getAllPost=asyncHandler(async(req,res)=>{
 })
 
 module.exports.like=asyncHandler(async(req,res)=>{
+    const io = req.app.get('socketio');
+
     const post=await Post.findById(req.params.postId)
     if(!post){
         res.status(404)
@@ -79,6 +81,12 @@ module.exports.like=asyncHandler(async(req,res)=>{
         post.likes.push(req.user.id)
         post.likesCount +=1
         await post.save()
+
+        io.to(req.params.postId).emit('postLiked', {
+            postId: req.params.postId,
+            likesCount: post.likes,
+          });
+      
         res.json({ success: true, message: 'Post liked' });
 
     }
