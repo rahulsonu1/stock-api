@@ -6,6 +6,7 @@ const commentController=require('../controllers/commentController')
 
 
 //posts
+router.get('/',postController.getAllPost)
 router.post('/',authMiddleware,postController.create)
 router.get('/:postId',postController.getPostbyId)
 router.delete('/:postId',authMiddleware,postController.deletePostbyId)

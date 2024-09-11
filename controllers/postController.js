@@ -53,6 +53,19 @@ module.exports.deletePostbyId=asyncHandler(async (req,res)=>{
     res.json({ success: true, message: 'Post and associated comments deleted successfully' });
 })
 
+module.exports.getAllPost=asyncHandler(async(req,res)=>{
+    const { stockSymbol, tags, sortBy } = req.query;
+    let query = {};
+    if (stockSymbol) {
+      query.stockSymbol = stockSymbol;
+    }
+    if (tags){ 
+        query.tags = { $in: tags.split(',') }
+    };
+    let posts = await Post.find(query).sort(sortBy === 'likes' ? { likesCount: -1 } : { createdAt: -1 });
+    res.json(posts);
+
+})
 
 module.exports.like=asyncHandler(async(req,res)=>{
     const post=await Post.findById(req.params.postId)
