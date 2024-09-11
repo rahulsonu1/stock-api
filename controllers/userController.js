@@ -2,6 +2,10 @@ const User=require('../models/User')
 const asyncHandler=require('express-async-handler')
 
 
+// asyncHandler : Simple middleware for handling exceptions inside of async express routes and passing them to your express error handlers.
+
+
+
 module.exports.profile=asyncHandler(async(req,res)=>{
     const user = await User.findById(req.params.userId).select('-password');
     if(!user){
