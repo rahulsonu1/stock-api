@@ -54,16 +54,43 @@ module.exports.deletePostbyId=asyncHandler(async (req,res)=>{
 })
 
 module.exports.getAllPost=asyncHandler(async(req,res)=>{
-    const { stockSymbol, tags, sortBy } = req.query;
-    let query = {};
-    if (stockSymbol) {
-      query.stockSymbol = stockSymbol;
-    }
-    if (tags){ 
-        query.tags = { $in: tags.split(',') }
-    };
-    let posts = await Post.find(query).sort(sortBy === 'likes' ? { likesCount: -1 } : { createdAt: -1 });
-    res.json(posts);
+    const { stockSymbol, tags, sortBy, page = 1, limit = 10 } = req.query;
+
+  // Create a query object based on stockSymbol and tags
+  let query = {};
+  if (stockSymbol) {
+    query.stockSymbol = stockSymbol;
+  }
+  if (tags) {
+    query.tags = { $in: tags.split(',') };  // Splitting tags by commas to use in $in query
+  }
+
+  const skip = (page - 1) * limit;
+
+  // Sorting logic based on likes or createdAt
+  const sort = sortBy === 'likes' ? { likesCount: -1 } : { createdAt: -1 };
+
+  // Fetch paginated posts with filtering and sorting
+  const posts = await Post.find(query)
+    .sort(sort)
+    .skip(skip)
+    .limit(Number(limit));
+
+    const total = await Post.countDocuments(query);
+
+  // Pagination metadata
+  const pagination = {
+    totalPosts: total,
+    currentPage: Number(page),
+    totalPages: Math.ceil(total / limit),
+    limit: Number(limit),
+  };
+
+  res.json({
+    posts,
+    pagination,
+  });
+
 
 })
 
