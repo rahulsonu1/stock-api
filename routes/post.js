@@ -9,6 +9,8 @@ const commentController=require('../controllers/commentController')
 router.post('/',authMiddleware,postController.create)
 router.get('/:postId',postController.getPostbyId)
 router.delete('/:postId',authMiddleware,postController.deletePostbyId)
+router.post('/:postId/like',authMiddleware,postController.like)
+router.delete('/:postId/like',authMiddleware,postController.unlike)
 
 
 //comments
